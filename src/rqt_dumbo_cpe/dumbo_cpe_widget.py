@@ -32,15 +32,23 @@
 #    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import sys
 import os
 import time
+import copy
 
 import rospy
 import rospkg
+import moveit_commander
+import moveit_msgs.msg
+import geometry_msgs.msg
+import std_srvs.srv
+from rqt_bag.recorder import Recorder
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Signal, QTime
 from python_qt_binding.QtGui import QGraphicsView, QIcon, QWidget, QFont, QTableWidget, QTableWidgetItem, QMainWindow, QTimeEdit, QRadioButton, QPushButton
+
 
 
 class DumboContactPointEstimationGraphicsView(QGraphicsView):
@@ -62,6 +70,58 @@ class DumboContactPointEstimationWidget(QMainWindow):
         loadUi(ui_file, self, {'DumboContactPointEstimationGraphicsView': DumboContactPointEstimationGraphicsView})
 
         self.setObjectName('DumboContactPointEstimationWidget')
+
+        self.startButton.clicked[bool].connect(self._handle_startButton_clicked)
+        self.stopButton.clicked[bool].connect(self._handle_stopButton_clicked)
+        self.resetButton.clicked[bool].connect(self._handle_resetButton_clicked)
+
+
+
+
+
+    def _handle_startButton_clicked(self):
+
+        # move robot to position 1
+
+
+        # move robot to position 2
+
+
+        # start recording bag file
+
+
+        # save parameters
+
+
+        # start surface tracing controller
+
+
+        # start contact point estimator
+
+
+
+
+
+
+    def _handle_stopButton_clicked(self):
+
+        # stop the contact point estimator
+
+        # stop the surface tracing controller
+
+        # stop recording bag file
+
+
+    def _handle_resetButton_clicked(self):
+
+        # reset the robot
+
+        # move up
+
+        # move back to position 1
+
+
+
         
 
 
