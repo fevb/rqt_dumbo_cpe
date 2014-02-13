@@ -5,9 +5,9 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 d = generate_distutils_setup(
-    packages=['dumbo_cpe_gui'],
+    packages=['rqt_dumbo_cpe'],
     package_dir={'': 'src'},
-    scripts=['scripts/dumbo_cpe_gui']
+    scripts=['scripts/rqt_dumbo_cpe']
 )
 
 setup(**d)

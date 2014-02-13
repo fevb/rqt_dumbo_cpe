@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>dumbo_cpe_gui</name>
+  <name>rqt_dumbo_cpe</name>
   <version>0.1.0</version>
-  <description>Qt based GUI for running Contact Point Estimation experiments on Dumbo</description>
+  <description>rqt plugin for running Contact Point Estimation experiments on Dumbo</description>
 
   <maintainer email="fevb@kth.se">Francisco Viña</maintainer>
 

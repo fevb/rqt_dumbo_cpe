@@ -1,12 +1,12 @@
-# 
+#
 #   dumbo_cpe_widget.py
 # 
 #   Created on: Feb 13, 2014
-#   Authors:   Francisco Viña
+#   Authors:   Francisco Vina
 #             fevb <at> kth.se
 # 
 
-#  Copyright (c) 2013, Francisco Viña, CVAP, KTH
+#  Copyright (c) 2014, Francisco Vina, CVAP, KTH
 #    All rights reserved.
 
 #    Redistribution and use in source and binary forms, with or without

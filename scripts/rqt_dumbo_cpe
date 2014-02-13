@@ -2,10 +2,10 @@
 
 import sys
 
-from dumbo_cpe_gui.dumbo_cpe import DumboContactPointEstimation
+from rqt_dumbo_cpe.dumbo_cpe import DumboContactPointEstimation
 from rqt_gui.main import Main
 
-plugin = 'dumbo_cpe_gui'
+plugin = 'rqt_dumbo_cpe'
 main = Main(filename=plugin)
 sys.exit(main.main(standalone=plugin, plugin_argument_provider=DumboContactPointEstimation.add_arguments))
 

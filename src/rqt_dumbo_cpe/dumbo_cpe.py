@@ -1,12 +1,12 @@
 #
 #   dumbo_cpe.py
 #
-#   Created on: Dec 3, 2013
-#   Authors:   Francisco Vina      Alejandro Marzinotto
-#             fevb <at> kth.se       almc <at> kth.se
+#   Created on: Feb 13, 2014
+#   Authors:   Francisco Vina
+#             fevb <at> kth.se 
 #
 
-#  Copyright (c) 2013, Francisco Vina, CVAP, KTH
+#  Copyright (c) 2014, Francisco Vina, CVAP, KTH
 #    All rights reserved.
 
 #    Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #
 import argparse
 
@@ -60,14 +61,14 @@ class DumboContactPointEstimation(Plugin):
         args = self._parse_args(context.argv())
 
     def _parse_args(self, argv):
-        parser = argparse.ArgumentParser(prog='dumbo_cpe_gui', add_help=False)
+        parser = argparse.ArgumentParser(prog='rqt_dumbo_cpe', add_help=False)
         DumboContactPointEstimation.add_arguments(parser)
         return parser.parse_args(argv)
 
     @staticmethod
     def add_arguments(parser):
-        group = parser.add_argument_group('Options for rqt_bag plugin')
-        group.add_argument('bagfiles', type=argparse.FileType('r'), nargs='*', default=[], help='Bagfiles to load')
+        group = parser.add_argument_group('Options for rqt_dumbo_cpe plugin')
+        # group.add_argument('bagfiles', type=argparse.FileType('r'), nargs='*', default=[], help='Bagfiles to load')
 
     def shutdown_plugin(self):
         self._widget.shutdown_all()

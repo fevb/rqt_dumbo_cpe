@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="DumboContactPointEstimation" type="dumbo_cpe_gui.dumbo_cpe.DumboContactPointEstimation" base_class_type="rqt_gui_py::Plugin">
+  <class name="DumboContactPointEstimation" type="rqt_dumbo_cpe.dumbo_cpe.DumboContactPointEstimation" base_class_type="rqt_gui_py::Plugin">
     <description>
       rqt python plugin for running Contact Point Estimation experiments on Dumbo.
     </description>

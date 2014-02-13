@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(dumbo_cpe_gui)
+project(rqt_dumbo_cpe)
 
 find_package(catkin REQUIRED )
 
@@ -14,6 +14,6 @@ install(DIRECTORY resource
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-install(PROGRAMS scripts/dumbo_cpe_gui
+install(PROGRAMS scripts/rqt_dumbo_cpe
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
