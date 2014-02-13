@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package>
+  <name>dumbo_cpe_gui</name>
+  <version>0.1.0</version>
+  <description>Qt based GUI for running Contact Point Estimation experiments on Dumbo</description>
+
+  <maintainer email="fevb@kth.se">Francisco Viña</maintainer>
+
+  <license>BSD</license>
+
+
+  <author email="fevb@kth.se">Francisco Viña</author>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>python-rospkg</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>roslib</run_depend>
+  <run_depend version_gte="0.2.12">rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>

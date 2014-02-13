@@ -1,0 +1,20 @@
+<library path="src">
+  <class name="DumboContactPointEstimation" type="dumbo_cpe_gui.dumbo_cpe.DumboContactPointEstimation" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      rqt python plugin for running Contact Point Estimation experiments on Dumbo.
+    </description>
+    <qtgui>
+      <!-- optional grouping...
+      <group>
+        <label>Group</label>
+      </group>
+      <group>
+        <label>Subgroup</label>
+      </group>
+      -->
+      <label>Dumbo CPE</label>
+      <icon type="theme">applications-other</icon>
+      <statustip>Dumbo CPE</statustip>
+    </qtgui>
+  </class>
+</library>
