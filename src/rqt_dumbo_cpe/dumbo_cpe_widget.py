@@ -34,19 +34,18 @@
 
 import sys
 import os
-import time
 import copy
 
 import rospy
 import rospkg
 import moveit_commander
-import moveit_msgs.msg
 import geometry_msgs.msg
-import std_srvs.srv
+from std_srvs.srv import *
+from cob_srvs.srv import *
 from rqt_bag.recorder import Recorder
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, QTimer, Signal, QTime
+from python_qt_binding.QtCore import Qt, QTimer, Signal, QTime, qWarning
 from python_qt_binding.QtGui import QGraphicsView, QIcon, QWidget, QFont, QTableWidget, QTableWidgetItem, QMainWindow, QTimeEdit, QRadioButton, QPushButton
 
 
@@ -66,7 +65,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         """
         super(DumboContactPointEstimationWidget, self).__init__()
         rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('dumbo_cpe_gui'), 'resource', 'dumbo_cpe.ui')
+        ui_file = os.path.join(rp.get_path('rqt_dumbo_cpe'), 'resource', 'dumbo_cpe_widget.ui')
         loadUi(ui_file, self, {'DumboContactPointEstimationGraphicsView': DumboContactPointEstimationGraphicsView})
 
         self.setObjectName('DumboContactPointEstimationWidget')
@@ -75,55 +74,198 @@ class DumboContactPointEstimationWidget(QMainWindow):
         self.stopButton.clicked[bool].connect(self._handle_stopButton_clicked)
         self.resetButton.clicked[bool].connect(self._handle_resetButton_clicked)
 
+        moveit_commander.roscpp_initialize(sys.argv)
+        self._group = moveit_commander.MoveGroupCommander("left_arm")
 
+        # create directory for logging data
+
+        self._datalog_path = os.path.expanduser('~/.ros/cpe_log_data/')
+        rospy.loginfo('Saving CPE log data to ' + self._datalog_path)
+
+        if not os.path.exists(self._datalog_path):
+            os.makedirs(self._datalog_path)
+
+
+        # robot joint position 1
+        self._q1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+        # service names for contact point estimator and surface tracing controller
+        self._cpe_param_ns = "/contact_point_estimation"
+        self._stc_param_ns = "/left_arm_surface_tracing_controller"
+
+        self._cpe_start_srv_name = "/contact_point_estimation/start"
+        self._cpe_stop_srv_name = "/contact_point_estimation/stop"
+
+        self._stc_start_srv_name = "/left_arm_surface_tracing_controller/start"
+        self._stc_stop_srv_name = "/left_arm_surface_tracing_controller/stop"
+        self._arm_recover_srv_name = "/left_arm_controller/recover"
 
 
 
     def _handle_startButton_clicked(self):
+        # move robot to joint position 1
+        self._group.set_joint_value_target(self._q1)
+        self._group.go()
 
-        # move robot to position 1
+        # move robot down to position 2
+        waypoints = list()
+        waypoints.append(self._group.get_current_pose().pose)
+
+        dz = 0.02
+
+        wpose = geometry_msgs.msg.Pose()
+        wpose.orientation.w = 1.0
+        wpose.position.x = waypoints[0].position.x
+        wpose.position.y = waypoints[0].position.y
+        wpose.position.z = waypoints[0].position.z-dz
+
+        waypoints.append(copy.deepcopy(wpose))
+
+        (plan, fraction) = self._group.compute_cartesian_path(waypoints,
+                                                              0.001,
+                                                              0.0)
+
+        self._group.execute(plan)
+
+        # check largest suffix of already existing bag and yaml files in directory
+        # new bag and config file will increment suffix by 1 to avoid
+        # overwriting
+        file_suffixes = list()
+        suffix = int(0)
+
+        if len(os.listdir(self._datalog_path)) != 0:
+            for file in os.listdir(self._datalog_path):
+                s = file.strip('.bag').strip('.yaml').strip('run').strip('_cpe').strip('_stc')
+                file_suffixes.append(s)
+
+            file_suffixes = map(int, file_suffixes)
+            suffix = max(file_suffixes) + 1
 
 
-        # move robot to position 2
+        filename = 'run' + str(suffix)
+        bag_filename = self._datalog_path + filename + '.bag'
+        cpe_yaml_filename = self._datalog_path + filename + '_cpe' + '.yaml'
+        stc_yaml_filename = self._datalog_path + filename + '_stc' + '.yaml'
+
+        rospy.loginfo('Recording to %s', bag_filename)
+        rospy.loginfo('Saving contact point estimation params to %s', cpe_yaml_filename)
+        rospy.loginfo('Saving surface tracing controller params to %s', stc_yaml_filename)
 
 
         # start recording bag file
+        try:
+            self._recorder = Recorder(bag_filename)
 
+        except Exception, ex:
+            qWarning('Error opening bag for recording [%s]: %s' % (filename, str(ex)))
+            return
+
+        self._recorder.start()
+        self._recording = True
 
         # save parameters
+        os.system('rosparam dump -v ' + cpe_yaml_filename + ' ' + self._cpe_param_ns)
+        os.system('rosparam dump -v ' + stc_yaml_filename + ' ' + self._stc_param_ns)
 
 
         # start surface tracing controller
+        rospy.loginfo('Waiting for ' + self._stc_start_srv_name + ' service')
+        rospy.wait_for_service(self._stc_start_srv_name)
+        try:
+            start_stc_srv = rospy.ServiceProxy(self._stc_start_srv_name, Empty)
+            start_stc_srv()
 
+        except rospy.ServiceException, e:
+            rospy.logerr('Error starting left arm surface tracing controller')
+            return
 
         # start contact point estimator
+        rospy.loginfo('Waiting for ' + self._cpe_start_srv_name + ' service')
+        rospy.wait_for_service(self._cpe_start_srv_name)
+        try:
+            start_cpe_srv = rospy.ServiceProxy(self._cpe_start_srv_name, Empty)
+            start_cpe_srv()
 
-
-
+        except rospy.ServiceException, e:
+            rospy.logerr('Error starting contact point estimation')
+            return
 
 
 
     def _handle_stopButton_clicked(self):
 
-        # stop the contact point estimator
-
-        # stop the surface tracing controller
-
         # stop recording bag file
+        self._recorder.stop()
+        self._recording = False
 
+        # stop surface tracing controller
+        rospy.loginfo('Waiting for ' + self._stc_stop_srv_name + ' service')
+        rospy.wait_for_service(self._stc_stop_srv_name)
+        try:
+            stop_stc_srv = rospy.ServiceProxy(self._stc_stop_srv_name, Empty)
+            stop_stc_srv()
+
+        except rospy.ServiceException, e:
+            rospy.logerr('Error stopping left arm surface tracing controller')
+            return
+
+        # stop contact point estimator
+        rospy.loginfo('Waiting for ' + self._cpe_stop_srv_name + ' service')
+        rospy.wait_for_service(self._cpe_stop_srv_name)
+        try:
+            stop_cpe_srv = rospy.ServiceProxy(self._cpe_stop_srv_name, Empty)
+            stop_cpe_srv()
+
+        except rospy.ServiceException, e:
+            rospy.logerr('Error stopping contact point estimation')
+            return
 
     def _handle_resetButton_clicked(self):
 
-        # reset the robot
+        # reset the robot (recover)
+        rospy.loginfo('Waiting for robot recover service')
+        rospy.wait_for_service(self._arm_recover_srv_name)
+        try:
+            arm_recover_srv = rospy.ServiceProxy(self._arm_recover_srv_name, Trigger)
+            ret = arm_recover_srv()
 
-        # move up
+        except rospy.ServiceException, e:
+            rospy.logerr('Error recovering arm through ' + self._arm_recover_srv_name + ' service.')
+            return
 
-        # move back to position 1
+        if not ret.success:
+            rospy.logerr('Recovering arm through ' + self._arm_recover_srv_name + ' service failed.')
+            return
 
 
+        # move the arm up
+        waypoints = list()
+        waypoints.append(self._group.get_current_pose().pose)
 
-        
+        dz = 0.1
+
+        wpose = geometry_msgs.msg.Pose()
+        wpose.orientation.w = 1.0
+        wpose.position.x = waypoints[0].position.x
+        wpose.position.y = waypoints[0].position.y
+        wpose.position.z = waypoints[0].position.z+dz
+
+        waypoints.append(copy.deepcopy(wpose))
+
+        (plan, fraction) = self._group.compute_cartesian_path(waypoints,
+                                                              0.005,
+                                                              0.0)
+
+        self._group.execute(plan)
 
 
     def shutdown_all(self):
         print "Shutting down Dumbo CPE dashboard ...."
+
+
+
+    def __del__(self):
+
+        if self._recording:
+            self._recorder.stop()
+            self._recording = False
