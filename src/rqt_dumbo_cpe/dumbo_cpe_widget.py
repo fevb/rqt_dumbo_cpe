@@ -82,6 +82,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         self._datalog_path = os.path.expanduser('~/.ros/cpe_log_data/')
         rospy.loginfo('Saving CPE log data to ' + self._datalog_path)
 
+
         if not os.path.exists(self._datalog_path):
             os.makedirs(self._datalog_path)
 
@@ -114,7 +115,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         dz = 0.02
 
         wpose = geometry_msgs.msg.Pose()
-        wpose.orientation.w = 1.0
+        wpose.orientation = waypoints[0].orientation
         wpose.position.x = waypoints[0].position.x
         wpose.position.y = waypoints[0].position.y
         wpose.position.z = waypoints[0].position.z-dz
@@ -245,7 +246,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         dz = 0.1
 
         wpose = geometry_msgs.msg.Pose()
-        wpose.orientation.w = 1.0
+        wpose.orientation = waypoints[0].orientation
         wpose.position.x = waypoints[0].position.x
         wpose.position.y = waypoints[0].position.y
         wpose.position.z = waypoints[0].position.z+dz
