@@ -88,7 +88,8 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
 
         # robot joint position 1
-        self._q1 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self._q1 = [-0.777780234814, -0.988386511803, 0.855541706085, -1.43784618378, 0.495330154896, -1.16698789597, -0.815340101719]
+
 
         # service names for contact point estimator and surface tracing controller
         self._cpe_param_ns = "/contact_point_estimation"
@@ -110,7 +111,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.1
+        dz = 0.05
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
@@ -126,15 +127,19 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         self._group.execute(plan)
 
+        rospy.sleep(1.0)
+
         # move robot to joint position 1
         self._group.set_joint_value_target(self._q1)
         self._group.go()
+
+        rospy.sleep(1.0)
 
         # move robot down to position 2
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.02
+        dz = 0.082
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
@@ -149,6 +154,8 @@ class DumboContactPointEstimationWidget(QMainWindow):
                                                               0.0)
 
         self._group.execute(plan)
+
+        rospy.sleep(1.0)
 
         # check largest suffix of already existing bag and yaml files in directory
         # new bag and config file will increment suffix by 1 to avoid
@@ -265,7 +272,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.1
+        dz = 0.2
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
