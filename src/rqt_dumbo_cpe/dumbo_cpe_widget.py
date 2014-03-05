@@ -104,6 +104,28 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
 
     def _handle_startButton_clicked(self):
+
+
+        # move the arm up
+        waypoints = list()
+        waypoints.append(self._group.get_current_pose().pose)
+
+        dz = 0.1
+
+        wpose = geometry_msgs.msg.Pose()
+        wpose.orientation = waypoints[0].orientation
+        wpose.position.x = waypoints[0].position.x
+        wpose.position.y = waypoints[0].position.y
+        wpose.position.z = waypoints[0].position.z+dz
+
+        waypoints.append(copy.deepcopy(wpose))
+
+        (plan, fraction) = self._group.compute_cartesian_path(waypoints,
+                                                              0.005,
+                                                              0.0)
+
+        self._group.execute(plan)
+
         # move robot to joint position 1
         self._group.set_joint_value_target(self._q1)
         self._group.go()
@@ -123,7 +145,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints.append(copy.deepcopy(wpose))
 
         (plan, fraction) = self._group.compute_cartesian_path(waypoints,
-                                                              0.001,
+                                                              0.005,
                                                               0.0)
 
         self._group.execute(plan)
