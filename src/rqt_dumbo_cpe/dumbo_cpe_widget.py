@@ -38,6 +38,7 @@ import copy
 
 import rospy
 import rospkg
+import rosparam
 import moveit_commander
 import geometry_msgs.msg
 from std_srvs.srv import *
@@ -157,6 +158,25 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         rospy.sleep(1.0)
 
+
+
+        # reload the parameters for controllers and estimators
+        rp = rospkg.RosPack()
+        cpe_param_file_path = os.path.join(rp.get_path('contact_point_estimation'), 'config', 'contact_point_estimator.yaml')
+        sne_param_file_path = os.path.join(rp.get_path('contact_point_estimation'), 'config', 'surface_normal_estimator.yaml')
+        stc_param_file_path = os.path.join(rp.get_path('dumbo_contact_point_estimation'), 'config', 'dumbo_surface_tracing_controller.yaml')
+
+        params = rosparam.load_file(cpe_param_file_path)
+        rosparam.upload_params(self._cpe_param_ns, params[0][0])
+
+        params = rosparam.load_file(sne_param_file_path)
+        rosparam.upload_params(self._cpe_param_ns, params[0][0])
+
+        params = rosparam.load_file(stc_param_file_path)
+        rosparam.upload_params(self._cpe_param_ns, params[0][0])
+
+
+        # save controller and estimator parameters
         # check largest suffix of already existing bag and yaml files in directory
         # new bag and config file will increment suffix by 1 to avoid
         # overwriting
@@ -272,7 +292,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.2
+        dz = 0.1
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
