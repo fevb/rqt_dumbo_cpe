@@ -250,18 +250,22 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         # stop surface tracing controller
         rospy.loginfo('Waiting for ' + self._stc_stop_srv_name + ' service')
-        rospy.wait_for_service(self._stc_stop_srv_name)
+        rospy.wait_for_service(self._stc_stop_srv_name, timeout=0.5)
         try:
             stop_stc_srv = rospy.ServiceProxy(self._stc_stop_srv_name, Empty)
             stop_stc_srv()
 
         except rospy.ServiceException, e:
             rospy.logerr('Error stopping left arm surface tracing controller')
+
+            # try stopping the cpe
+            stop_cpe_srv = rospy.ServiceProxy(self._cpe_stop_srv_name, Empty)
+            stop_cpe_srv()
             return
 
         # stop contact point estimator
         rospy.loginfo('Waiting for ' + self._cpe_stop_srv_name + ' service')
-        rospy.wait_for_service(self._cpe_stop_srv_name)
+        rospy.wait_for_service(self._cpe_stop_srv_name, timeout = 0.5)
         try:
             stop_cpe_srv = rospy.ServiceProxy(self._cpe_stop_srv_name, Empty)
             stop_cpe_srv()
