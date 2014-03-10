@@ -173,7 +173,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         rosparam.upload_params(self._cpe_param_ns, params[0][0])
 
         params = rosparam.load_file(stc_param_file_path)
-        rosparam.upload_params(self._cpe_param_ns, params[0][0])
+        rosparam.upload_params(self._stc_param_ns, params[0][0])
 
 
         # save controller and estimator parameters
