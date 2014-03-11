@@ -107,6 +107,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
     def _handle_startButton_clicked(self):
 
+        rospy.loginfo('Starting Contact Point Estimation experiment')
 
         # move the arm up
         waypoints = list()
@@ -226,7 +227,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
             start_stc_srv()
 
         except rospy.ServiceException, e:
-            rospy.logerr('Error starting left arm surface tracing controller')
+            rospy.logerr('Error starting surface tracing controller')
             return
 
         # start contact point estimator
@@ -238,11 +239,19 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         except rospy.ServiceException, e:
             rospy.logerr('Error starting contact point estimation')
+            stop_stc_srv = rospy.ServiceProxy(self._stc_stop_srv_name, Empty)
+            stop_stc_srv()
+            self._recorder.stop()
             return
 
+        duration = rospy.get_param(self._stc_param_ns + '/trajectory_generator/duration', 1.0)
+        rospy.sleep(duration+0.5)
+        self._handle_stopButton_clicked()
 
 
     def _handle_stopButton_clicked(self):
+
+        rospy.loginfo('Stopping Contact Point Estimation experiment')
 
         # stop recording bag file
         self._recorder.stop()
