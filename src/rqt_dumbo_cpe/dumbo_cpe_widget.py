@@ -28,6 +28,7 @@
 #    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 #    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 #    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+
 #    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -103,6 +104,11 @@ class DumboContactPointEstimationWidget(QMainWindow):
         self._stc_stop_srv_name = "/left_arm_surface_tracing_controller/stop"
         self._arm_recover_srv_name = "/left_arm_controller/recover"
 
+        self._stop_arm_srv_name = "/left_arm_controller/stop_arm"
+
+        self._timer = QTimer()
+        self._timer.timeout.connect(self._handle_timer)
+
 
 
     def _handle_startButton_clicked(self):
@@ -141,7 +147,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.082
+        dz = 0.068
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
@@ -158,7 +164,6 @@ class DumboContactPointEstimationWidget(QMainWindow):
         self._group.execute(plan)
 
         rospy.sleep(1.0)
-
 
 
         # reload the parameters for controllers and estimators
@@ -245,13 +250,31 @@ class DumboContactPointEstimationWidget(QMainWindow):
             return
 
         duration = rospy.get_param(self._stc_param_ns + '/trajectory_generator/duration', 1.0)
-        rospy.sleep(duration+0.5)
-        self._handle_stopButton_clicked()
 
+        self._timer.setInterval(int((duration+0.5)*1000.0))
+        self._timer.start()
+
+
+    def _handle_timer(self):
+        self._timer.stop()
+        self._handle_stopButton_clicked()
 
     def _handle_stopButton_clicked(self):
 
         rospy.loginfo('Stopping Contact Point Estimation experiment')
+
+        self._timer.stop()
+
+        # stop the arm
+        # rospy.loginfo('Stopping the arm')
+        # rospy.wait_for_service(self._stop_arm_srv_name, 0.5)
+        # try:
+        #     stop_arm_srv = rospy.ServiceProxy(self._stop_arm_srv_name, Trigger)
+        #     stop_arm_srv()
+        #
+        # except rospy.ServiceException, e:
+        #     rospy.logerr('Error stopping left arm')
+        #     return
 
         # stop recording bag file
         if self._recording:
@@ -260,22 +283,18 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         # stop surface tracing controller
         rospy.loginfo('Waiting for ' + self._stc_stop_srv_name + ' service')
-        rospy.wait_for_service(self._stc_stop_srv_name, timeout=0.5)
+        rospy.wait_for_service(self._stc_stop_srv_name, 0.5)
         try:
             stop_stc_srv = rospy.ServiceProxy(self._stc_stop_srv_name, Empty)
             stop_stc_srv()
 
         except rospy.ServiceException, e:
             rospy.logerr('Error stopping left arm surface tracing controller')
-
-            # try stopping the cpe
-            stop_cpe_srv = rospy.ServiceProxy(self._cpe_stop_srv_name, Empty)
-            stop_cpe_srv()
             return
 
         # stop contact point estimator
         rospy.loginfo('Waiting for ' + self._cpe_stop_srv_name + ' service')
-        rospy.wait_for_service(self._cpe_stop_srv_name, timeout = 0.5)
+        rospy.wait_for_service(self._cpe_stop_srv_name, 0.5)
         try:
             stop_cpe_srv = rospy.ServiceProxy(self._cpe_stop_srv_name, Empty)
             stop_cpe_srv()
