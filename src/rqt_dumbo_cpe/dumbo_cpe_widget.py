@@ -254,7 +254,8 @@ class DumboContactPointEstimationWidget(QMainWindow):
         rospy.loginfo('Stopping Contact Point Estimation experiment')
 
         # stop recording bag file
-        self._recorder.stop()
+        if self._recording:
+            self._recorder.stop()
         self._recording = False
 
         # stop surface tracing controller
