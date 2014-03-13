@@ -108,6 +108,8 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         self._topics = ['/left_arm_ft_sensor/ft_compensated',
                   '/left_arm_controller/state',
+                  '/tf',
+                  '/joint_states',
                   '/contact_point_estimation/contact_point_estimate',
                   '/contact_point_estimation/surface_normal_estimate',
                   '/contact_point_estimation/twist_ft_sensor']
