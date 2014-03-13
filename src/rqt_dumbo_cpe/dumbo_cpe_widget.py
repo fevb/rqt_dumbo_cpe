@@ -233,6 +233,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         except rospy.ServiceException, e:
             rospy.logerr('Error starting surface tracing controller')
+            self._recorder.stop()
             return
 
         # start contact point estimator
