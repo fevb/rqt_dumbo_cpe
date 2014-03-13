@@ -219,7 +219,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         # start recording bag file
 
         try:
-            self._recorder = Recorder(bag_filename, None, False, topics, False, 0, 1.0)
+            self._recorder = Recorder(bag_filename, None, False, self._topics, False, 0, 1.0)
 
         except Exception, ex:
             qWarning('Error opening bag for recording [%s]: %s' % (filename, str(ex)))
