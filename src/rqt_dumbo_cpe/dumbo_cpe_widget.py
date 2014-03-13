@@ -106,6 +106,12 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
         self._stop_arm_srv_name = "/left_arm_controller/stop_arm"
 
+        self._topics = ['/left_arm_ft_sensor/ft_compensated',
+                  '/left_arm_controller/state',
+                  '/contact_point_estimation/contact_point_estimate',
+                  '/contact_point_estimation/surface_normal_estimate',
+                  '/contact_point_estimation/twist_ft_sensor']
+
         self._timer = QTimer()
         self._timer.timeout.connect(self._handle_timer)
 
@@ -209,8 +215,9 @@ class DumboContactPointEstimationWidget(QMainWindow):
 
 
         # start recording bag file
+
         try:
-            self._recorder = Recorder(bag_filename)
+            self._recorder = Recorder(bag_filename, None, False, topics, False, 0, 1.0)
 
         except Exception, ex:
             qWarning('Error opening bag for recording [%s]: %s' % (filename, str(ex)))
