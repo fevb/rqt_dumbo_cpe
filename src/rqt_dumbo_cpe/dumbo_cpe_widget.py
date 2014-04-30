@@ -114,6 +114,8 @@ class DumboContactPointEstimationWidget(QMainWindow):
                   '/contact_point_estimation/surface_normal_estimate',
                   '/contact_point_estimation/twist_ft_sensor']
 
+        self._recording = False
+
         self._timer = QTimer()
         self._timer.timeout.connect(self._handle_timer)
 
@@ -155,7 +157,7 @@ class DumboContactPointEstimationWidget(QMainWindow):
         waypoints = list()
         waypoints.append(self._group.get_current_pose().pose)
 
-        dz = 0.068
+        dz = 0.073
 
         wpose = geometry_msgs.msg.Pose()
         wpose.orientation = waypoints[0].orientation
